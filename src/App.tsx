@@ -1,17 +1,28 @@
 import React from "react";
 
 import { BrowserRouter, Switch, Redirect, Route } from "react-router-dom";
-import MainPage from "./redux/routes/MainPage";
+import Header from "./components/Header";
+import MainPage from "./routes/MainPage";
+import SearchPage from "./routes/SearchPage";
+import styled from "styled-components";
 
 const NoMatch = () => <Redirect to="/" />
 
+const PageWrapper = styled.div`{
+    width: 100%;
+}`;
+
 function App() {
-    return <BrowserRouter basename="/">
-        <Switch>
-            <Route exact path={"/"} component={MainPage} />
-            <Route exact component={NoMatch} />
-        </Switch>
-    </BrowserRouter>;
+    return <PageWrapper>
+        <BrowserRouter basename="/">
+            <Header />
+            <Switch>
+                <Route exact path={"/search"} component={SearchPage} />
+                <Route exact path={"/"} component={MainPage} />
+                <Route exact component={NoMatch} />
+            </Switch>
+        </BrowserRouter>
+    </PageWrapper>;
 }
 
 export default App;
