@@ -9,9 +9,17 @@ import Paper from "@material-ui/core/Paper";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import {Select} from "@material-ui/core";
 import MenuItem from "@material-ui/core/MenuItem";
+import Button from "@material-ui/core/Button";
+import jsPDF from "jspdf";
+import 'jspdf-autotable'
 
 const useStyles = makeStyles({
-    table: {
+    leftTable: {
+        width: '30%',
+        float: 'left',
+        marginTop: '100px'
+    },
+    rightTable: {
         width: '65%',
         marginRight: '0px',
         marginLeft: 'auto',
@@ -21,12 +29,18 @@ const useStyles = makeStyles({
         float: 'right',
         padding: '20px'
     },
+    saveButton: {
+        float: 'right',
+        padding: "10px",
+        margin: "20px"
+    }
 });
 
 function createData(year: number, month: string, sold: number, discount: number, income: number, profit: number) {
     return {year, month, sold, discount, income, profit};
 }
 
+//TODO: fetch rows from backend
 const rows = [
     createData(2020,'Január', 543, 443, 325000, 10000),
     createData(2019, 'Február', 343, 143, 125000, -25000),
@@ -41,6 +55,34 @@ export default function ReportPage() {
 
     const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
         setSelectedYear(event.target.value as number);
+        financialDataForYear = {
+            income: getOutgoingsForYear(),
+            outgoings: getOutgoingsForYear()
+        };
+    };
+
+    const getIncomeForYear = () => {
+        return rows.filter(row => row.year === selectedYear).reduce((a, b) => +a + +b.income, 0);
+    };
+
+    const getOutgoingsForYear = () => {
+        return rows.filter(row => row.year === selectedYear).reduce((a, b) => +a + +(b.profit - b.income), 0);
+    };
+
+    const getProfitForYear = () => {
+        return financialDataForYear.income - Math.abs(financialDataForYear.outgoings);
+    };
+
+    const downloadReport = () => {
+        const doc = new jsPDF();
+        // @ts-ignore
+        doc.autoTable({ html: '#sales-table' });
+        doc.save(`report-${selectedYear}.pdf`)
+    };
+
+    let financialDataForYear = {
+        income: getIncomeForYear(),
+        outgoings: getOutgoingsForYear()
     };
 
     return (
@@ -50,7 +92,6 @@ export default function ReportPage() {
                     <Select
                         labelId="year-select-label"
                         id="year-select"
-                        label="Év:"
                         value={selectedYear}
                         onChange={handleChange}
                         className={classes.yearSelector}
@@ -62,7 +103,24 @@ export default function ReportPage() {
                     </Select>
                 </div>
 
-                <Table className={classes.table} aria-label="simple table">
+                <Table className={classes.leftTable} aria-label="summary-table">
+                    <TableBody>
+                        <TableRow key="incomeRow">
+                            <TableCell align="left">Éves bevétel:</TableCell>
+                            <TableCell align="right">{financialDataForYear.income} Ft</TableCell>
+                        </TableRow>
+                        <TableRow key="outgoingsRow">
+                            <TableCell align="left">Éves kiadás:</TableCell>
+                            <TableCell align="right">{financialDataForYear.outgoings} Ft</TableCell>
+                        </TableRow>
+                        <TableRow key="endRow">
+                            <TableCell align="left">Éves profit:</TableCell>
+                            <TableCell align="right">{getProfitForYear()} Ft</TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+
+                <Table className={classes.rightTable} aria-label="sales-table" id="sales-table">
                     <TableHead>
                         <TableRow>
                             <TableCell>Hónap</TableCell>
@@ -87,6 +145,9 @@ export default function ReportPage() {
                         ))}
                     </TableBody>
                 </Table>
+                <Button variant="outlined" color="secondary" className={classes.saveButton} onClick={() => {downloadReport()}}>
+                    Mentés
+                </Button>
             </TableContainer>
         </>
     );
