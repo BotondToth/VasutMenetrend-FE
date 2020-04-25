@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Card, CardHeader, CardContent, TextField, Button, CircularProgress } from '@material-ui/core';
+import { Typography, Card, CardContent, TextField, Button, CircularProgress } from '@material-ui/core';
 import styled from 'styled-components';
 import TrainCard from '../components/TrainCard';
 import queryString from "query-string";
@@ -73,7 +73,7 @@ class SearchPage extends React.Component<Props, State> {
     }
 
     handleKeyDown(e) {
-        if (e.keyCode == 13) {
+        if (e.keyCode === 13) {
             this.handleSearch();
         }
     }
@@ -96,15 +96,15 @@ class SearchPage extends React.Component<Props, State> {
 
         // :>
         let changed: boolean = false;
-        if (oldParams.to != params.to && this.toInputRef.current != null) {
+        if (oldParams.to !== params.to && this.toInputRef.current != null) {
             this.toInputRef.current.value = params.to ?? "";
             changed = true;
         }
-        if (oldParams.from != params.from && this.fromInputRef.current != null) {
+        if (oldParams.from !== params.from && this.fromInputRef.current != null) {
             this.fromInputRef.current.value = params.from ?? "";
             changed = true;
         }
-        if (oldParams.when != params.when && this.whenInputRef.current != null) {
+        if (oldParams.when !== params.when && this.whenInputRef.current != null) {
             this.whenInputRef.current.value = params.when ?? "";
             changed = true;
         }
@@ -188,7 +188,7 @@ class SearchPage extends React.Component<Props, State> {
                 <MiddleColumn>
                     {this.renderContent()}
                 </MiddleColumn>
-                <RightColumn></RightColumn>
+                <RightColumn/>
             </PageWrapper>
         );
     }

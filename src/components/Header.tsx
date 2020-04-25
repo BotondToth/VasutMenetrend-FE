@@ -83,7 +83,7 @@ class Header extends React.Component<Props, State> {
     }
 
     handleKeyDown(e) {
-        if (e.keyCode == 13 && this.state.search.length > 0) {
+        if (e.keyCode === 13 && this.state.search.length > 0) {
             this.props.history.push(`/search?to=${encodeURIComponent(this.state.search)}`);
         }
     }
