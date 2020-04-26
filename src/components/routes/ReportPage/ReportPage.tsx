@@ -51,7 +51,7 @@ const rows = [
 
 export default function ReportPage() {
     const classes = useStyles();
-    const [selectedYear, setSelectedYear] = React.useState(2020);
+    const [selectedYear, setSelectedYear] = React.useState(new Date().getFullYear());
 
     const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
         setSelectedYear(event.target.value as number);

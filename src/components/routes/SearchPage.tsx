@@ -1,7 +1,7 @@
 import React from 'react';
 import { Typography, Card, CardContent, TextField, Button, CircularProgress } from '@material-ui/core';
 import styled from 'styled-components';
-import TrainCard from '../components/TrainCard';
+import TrainCard from '../TrainCard';
 import queryString from "query-string";
 import * as moment from 'moment';
 
