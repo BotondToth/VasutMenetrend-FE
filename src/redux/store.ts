@@ -1,7 +1,9 @@
 import { combineReducers, createStore } from "redux"
 
+import { reducer as dialogReducer } from "./dialogs";
+
 const reducers = combineReducers({
-    // TODO
+    dialogs: dialogReducer
 });
 
 export const store = createStore(reducers);
