@@ -4,9 +4,16 @@ import "./index.css";
 import App from "./App";
 import { Provider } from "react-redux";
 import * as serviceWorker from "./serviceWorker";
-import { store } from "./redux/store";
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import indigo from '@material-ui/core/colors/indigo';
+import {State} from "./store";
+import {storeConfig} from "./store/storeConfig";
+import {createBrowserHistory} from "history";
+import axios from 'axios'
+
+const history = createBrowserHistory();
+
+export const store = storeConfig(history, {} as State);
 
 // https://material-ui.com/customization/color/#color-tool
 export const theme = createMuiTheme({
@@ -18,14 +25,14 @@ export const theme = createMuiTheme({
 	},
 })
 
+axios.defaults.baseURL = 'http://localhost:8080';
+
 ReactDOM.render(
-	<React.StrictMode>
 		<MuiThemeProvider theme={theme}>
 			<Provider store={store}>
 				<App />
 			</Provider>
-		</MuiThemeProvider>
-	</React.StrictMode>,
+		</MuiThemeProvider>,
 	document.getElementById('root')
 );
 

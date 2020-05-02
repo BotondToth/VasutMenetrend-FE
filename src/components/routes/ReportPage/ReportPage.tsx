@@ -1,4 +1,4 @@
-import React from "react";
+import React, {ReactElement, useEffect} from "react";
 import TableContainer from "@material-ui/core/TableContainer";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -12,6 +12,9 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Button from "@material-ui/core/Button";
 import jsPDF from "jspdf";
 import 'jspdf-autotable'
+import {getReports} from "../../../actions/reportAction";
+import {useDispatch, useSelector} from "react-redux";
+import {selectReports} from "../../../reducers/selectors/reportsSelector";
 
 const useStyles = makeStyles({
     leftTable: {
@@ -36,22 +39,16 @@ const useStyles = makeStyles({
     }
 });
 
-function createData(year: number, month: string, sold: number, discount: number, income: number, profit: number) {
-    return {year, month, sold, discount, income, profit};
-}
-
-//TODO: fetch rows from backend
-const rows = [
-    createData(2020,'Január', 543, 443, 325000, 10000),
-    createData(2019, 'Február', 343, 143, 125000, -25000),
-    createData(2018, 'Március', 720, 220, 525000, 20000),
-    createData(2020,'Április', 610, 100, 424000, 80000),
-];
-
-
 export default function ReportPage() {
+    const dispatch = useDispatch();
     const classes = useStyles();
     const [selectedYear, setSelectedYear] = React.useState(new Date().getFullYear());
+    const reportsState = useSelector(selectReports);
+
+    useEffect(() => {
+        dispatch(getReports());
+    }, [dispatch]);
+
 
     const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
         setSelectedYear(event.target.value as number);
@@ -62,11 +59,11 @@ export default function ReportPage() {
     };
 
     const getIncomeForYear = () => {
-        return rows.filter(row => row.year === selectedYear).reduce((a, b) => +a + +b.income, 0);
+        return reportsState.reports.filter(row => row.year === selectedYear).reduce((a, b) => +a + +b.income, 0);
     };
 
     const getOutgoingsForYear = () => {
-        return rows.filter(row => row.year === selectedYear).reduce((a, b) => +a + +(b.profit - b.income), 0);
+        return reportsState.reports.filter(row => row.year === selectedYear).reduce((a, b) => +a + +(b.profit - b.income), 0);
     };
 
     const getProfitForYear = () => {
@@ -78,6 +75,19 @@ export default function ReportPage() {
         // @ts-ignore
         doc.autoTable({ html: '#sales-table' });
         doc.save(`report-${selectedYear}.pdf`)
+    };
+
+    const getMenuItems = (): ReactElement[] => {
+        const uniqueYears: number[] = [];
+        reportsState.reports.forEach(report => {
+            if (!uniqueYears.includes(report.year)) {
+                uniqueYears.push(report.year)
+            }
+        });
+
+        return uniqueYears.map((year, idx) => {
+                return <MenuItem key={idx} value={year}>{year}</MenuItem>
+            });
     };
 
     let financialDataForYear = {
@@ -96,10 +106,9 @@ export default function ReportPage() {
                         onChange={handleChange}
                         className={classes.yearSelector}
                     >
-                        //TODO: fetch years from backend
-                        <MenuItem value={2020}>2020</MenuItem>
-                        <MenuItem value={2019}>2019</MenuItem>
-                        <MenuItem value={2017}>2018</MenuItem>
+                        {
+                            getMenuItems()
+                        }
                     </Select>
                 </div>
 
@@ -131,14 +140,14 @@ export default function ReportPage() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.map((row) => (
+                        {reportsState.reports.map((row, idx) => (
                             row.year === selectedYear &&
-                            <TableRow key={row.month}>
+                            <TableRow key={idx}>
                                 <TableCell component="th" scope="row">
                                     {row.month}
                                 </TableCell>
                                 <TableCell align="right">{row.sold}</TableCell>
-                                <TableCell align="right">{row.discount}</TableCell>
+                                <TableCell align="right">{row.discountTickets}</TableCell>
                                 <TableCell align="right">{row.income}</TableCell>
                                 <TableCell align="right">{row.profit}</TableCell>
                             </TableRow>
