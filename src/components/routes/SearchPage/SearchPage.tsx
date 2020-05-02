@@ -1,9 +1,13 @@
 import React from 'react';
-import { Typography, Card, CardContent, TextField, Button, CircularProgress } from '@material-ui/core';
+import { Typography, Card, CardContent, TextField, Button, CircularProgress, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Divider } from '@material-ui/core';
 import styled from 'styled-components';
-import TrainCard from '../TrainCard';
+import TrainCard from '../../TrainCard';
 import queryString from "query-string";
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import * as moment from 'moment';
+import CategoryChips from "./CategoryChips";
+import PriceRangeSlider from "./PriceRangeSlider";
+import CityList from './CityList';
 
 const PageWrapper = styled.div`{
     display: flex;
@@ -24,6 +28,7 @@ const SearchSettingsContainer = styled.div`{
     position: absolute;
     right: 0;
     padding-right: 20px;
+    min-width: 300px;
 }`;
 const SearchRow = styled.div`{
     display: block;
@@ -42,6 +47,25 @@ const LoadingWrapper = styled.div`{
     justify-content: center;
 }`;
 
+const SpecialSearchPanel = styled(ExpansionPanel)`{
+    margin-top: 20px;
+}`;
+
+const FlexContainer = styled.div`{
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+}`;
+const FlexRow = styled.div`{
+    display: flex;
+    flex-flow: row;
+}`;
+
+const DividerMargin = styled.div`{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}`;
+
 interface Props {
     history;
     location;
@@ -49,6 +73,7 @@ interface Props {
 
 interface State {
     loading: boolean;
+    priceRange: number[]
 }
 
 class SearchPage extends React.Component<Props, State> {
@@ -64,7 +89,8 @@ class SearchPage extends React.Component<Props, State> {
         this.whenInputRef = React.createRef();
 
         this.state = {
-            loading: false
+            loading: false,
+            priceRange: [0, 100]
         }
     }
 
@@ -161,13 +187,14 @@ class SearchPage extends React.Component<Props, State> {
                             <CardContent>
                                 <Typography variant="h6">Keresés</Typography>
                                 <SearchRow>
-                                    <TextField inputRef={this.fromInputRef} label="Honnan" defaultValue={params.from ?? ""} onKeyDown={this.handleKeyDown.bind(this)} />
+                                    <TextField fullWidth inputRef={this.fromInputRef} label="Honnan" defaultValue={params.from ?? ""} onKeyDown={this.handleKeyDown.bind(this)} />
                                 </SearchRow>
                                 <SearchRow>
-                                    <TextField inputRef={this.toInputRef} label="Hova" defaultValue={params.to ?? ""} onKeyDown={this.handleKeyDown.bind(this)} />
+                                    <TextField fullWidth inputRef={this.toInputRef} label="Hova" defaultValue={params.to ?? ""} onKeyDown={this.handleKeyDown.bind(this)} />
                                 </SearchRow>
                                 <SearchRow>
                                     <TextField
+                                        fullWidth
                                         label="Mikor"
                                         type="datetime-local"
                                         defaultValue={params.when ?? moment.default().format("YYYY-MM-DDTHH:mm")}
@@ -183,12 +210,33 @@ class SearchPage extends React.Component<Props, State> {
                                 </SearchButtonRow>
                             </CardContent>
                         </Card>
+                        <SpecialSearchPanel>
+                            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography>Speciális keresés</Typography>
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails>
+                                <FlexContainer>
+                                    <FlexRow>
+                                        <Typography style={{marginRight: "20px"}}>Ár </Typography>
+                                        <PriceRangeSlider />
+                                    </FlexRow>
+                                    <DividerMargin><Divider/></DividerMargin>
+                                    <FlexRow>
+                                        <CategoryChips categories={["Elsőosztály", "Másodosztály", "Kutyabigyó"]} />
+                                    </FlexRow>
+                                    <DividerMargin><Divider/></DividerMargin>
+                                    <FlexRow>
+                                        <CityList />
+                                    </FlexRow>
+                                </FlexContainer>
+                            </ExpansionPanelDetails>
+                        </SpecialSearchPanel>
                     </SearchSettingsContainer>
                 </LeftColumn>
                 <MiddleColumn>
                     {this.renderContent()}
                 </MiddleColumn>
-                <RightColumn/>
+                <RightColumn />
             </PageWrapper>
         );
     }

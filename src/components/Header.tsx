@@ -1,10 +1,14 @@
 import React from 'react';
+import { connect } from "react-redux";
 import { AppBar, Toolbar, Typography, InputBase } from '@material-ui/core';
 import { withStyles, WithStyles, createStyles } from "@material-ui/core";
 import { fade } from "@material-ui/core/styles/colorManipulator";
 import SearchIcon from '@material-ui/icons/Search';
 import { compose } from "recompose";
 import { withRouter } from "react-router"
+import { Link } from 'react-router-dom';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import { openDialog, DIALOG_LOGIN } from '../redux/dialogs';
 
 const styles = theme =>
     createStyles({
@@ -14,7 +18,17 @@ const styles = theme =>
         },
         headerText: {
             position: "absolute",
-            left: 0
+            left: 0,
+            color: "white"
+        },
+        loginButton: {
+            position: "absolute",
+            right: 0,
+            color: "white",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            cursor: "pointer"
         },
         search: {
             width: "600px",
@@ -59,14 +73,27 @@ const styles = theme =>
         }
     })
 
+const mapStateToProps = (store) => {
+    return { };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        openLogin: () => {
+            dispatch(openDialog(DIALOG_LOGIN));
+        }
+    };
+};
+
 interface State {
     search: string;
 }
 
-interface Props extends WithStyles<typeof styles> {
+interface OwnProps extends WithStyles<typeof styles> {
     history;
 }
 
+type Props = OwnProps & ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>
 class Header extends React.Component<Props, State> {
     constructor(props) {
         super(props);
@@ -88,13 +115,22 @@ class Header extends React.Component<Props, State> {
         }
     }
 
+    handleUserClick() {
+        this.props.openLogin();
+    }
+
     render() {
         const { classes } = this.props;
 
         return <AppBar position="sticky">
             <Toolbar>
                 <div className={classes.root}>
-                    <Typography variant="h6" className={classes.headerText}>Vasútmenetrend</Typography>
+                    <Link to="/">
+                        <Typography variant="h6" className={classes.headerText}>Vasútmenetrend</Typography>
+                    </Link>
+                    <div className={classes.loginButton} onClick={this.handleUserClick.bind(this)}>
+                        <AccountCircle />
+                    </div>
                     <div className={classes.search}>
                         <div className={classes.searchIcon}>
                             <SearchIcon />
@@ -117,5 +153,6 @@ class Header extends React.Component<Props, State> {
 
 export default compose(
     withRouter,
-    withStyles(styles, { withTheme: true })
+    withStyles(styles, { withTheme: true }),
+    connect(mapStateToProps, mapDispatchToProps)
 )(Header);
