@@ -52,7 +52,7 @@ export default class CategoryChips extends React.Component<CategoryProps, Catego
                               color={this.state.enabled[index] ? "primary" : "default"}
                               onClick={(() => {
                                   this.toggleEnable(index);
-                              }).bind(this)} />
+                              })} />
                     </ChipWrapper>;
                 })
             }

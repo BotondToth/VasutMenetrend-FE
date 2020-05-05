@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from "react-redux";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField, CircularProgress } from '@material-ui/core';
-import { closeDialog, DIALOG_LOGIN, DIALOG_REGISTER, openDialog } from '../redux/dialogs';
+import { closeDialog, DIALOG_LOGIN, DIALOG_REGISTER, openDialog } from '../reducers/dialogs';
 import { withStyles, WithStyles, createStyles } from "@material-ui/core";
 import styled from 'styled-components';
 import { compose } from "recompose";

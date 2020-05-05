@@ -8,7 +8,7 @@ import { compose } from "recompose";
 import { withRouter } from "react-router"
 import { Link } from 'react-router-dom';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import { openDialog, DIALOG_LOGIN } from '../redux/dialogs';
+import { openDialog, DIALOG_LOGIN } from '../reducers/dialogs';
 
 const styles = theme =>
     createStyles({
