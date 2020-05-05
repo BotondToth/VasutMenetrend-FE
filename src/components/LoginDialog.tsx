@@ -1,10 +1,12 @@
 import React from 'react';
 import { connect } from "react-redux";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField, CircularProgress } from '@material-ui/core';
-import { closeDialog, DIALOG_LOGIN, openDialog, DIALOG_REGISTER } from '../redux/dialogs';
+import { closeDialog, DIALOG_LOGIN, openDialog, DIALOG_REGISTER } from '../reducers/dialogs';
 import { withStyles, WithStyles, createStyles } from "@material-ui/core";
 import styled from 'styled-components';
 import { compose } from "recompose";
+import {getToken} from "../actions/authActions";
+import {AuthUser} from "../models/AuthUserResponse";
 
 const mapStateToProps = (store) => {
     return {
@@ -81,10 +83,26 @@ class LoginDialog extends React.Component<Props, State> {
         this.props.closeLogin();
     }
 
-    handleLogin() {
+    async handleLogin() {
         this.setState({
             loading: true
-        })
+        });
+        // @ts-ignore
+        const usernameValue = document.getElementById('username').value;
+        // @ts-ignore
+        const passwordValue = document.getElementById('password').value;
+        const user = {
+            username: usernameValue ? usernameValue : "",
+            password: passwordValue ? passwordValue : ""
+        } as AuthUser;
+        getToken(user).then(res => {
+                this.setState({
+                    loading: false
+                });
+                this.handleClose()
+            }
+        );
+        //localStorage.getItem('token')
     }
 
     handleRegister() {
@@ -99,10 +117,10 @@ class LoginDialog extends React.Component<Props, State> {
             <BaseContent dividers>
                 <TableWrapper>
                     <Row>
-                        <TextField className={classes.input} fullWidth label="Név" />
+                        <TextField id="username" className={classes.input} fullWidth label="Felhasználónév" />
                     </Row>
                     <Row>
-                        <TextField className={classes.input} fullWidth label="Jelszó" />
+                        <TextField id="password" className={classes.input} fullWidth label="Jelszó" />
                     </Row>
                 </TableWrapper>
             </BaseContent>
@@ -127,7 +145,7 @@ class LoginDialog extends React.Component<Props, State> {
             </DialogActions>
         </Dialog>;
     }
-};
+}
 
 export default compose(
     withStyles(styles, { withTheme: true }),
