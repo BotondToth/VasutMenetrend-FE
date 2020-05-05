@@ -5,6 +5,9 @@ import { closeDialog, DIALOG_LOGIN, DIALOG_REGISTER, openDialog } from '../reduc
 import { withStyles, WithStyles, createStyles } from "@material-ui/core";
 import styled from 'styled-components';
 import { compose } from "recompose";
+import { RegisterUser } from "../models/AuthUserResponse";
+import {register} from "../api/authApi";
+import { Alert } from '@material-ui/lab';
 
 const mapStateToProps = (store) => {
     return {
@@ -64,7 +67,8 @@ const Row = styled.div`{
 }`;
 
 interface State {
-    loading: boolean
+    loading: boolean,
+    registrationFailed: boolean
 }
 
 type Props = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps> & WithStyles<typeof styles>
@@ -73,7 +77,8 @@ class RegisterDialog extends React.Component<Props, State> {
         super(props);
 
         this.state = {
-            loading: false
+            loading: false,
+            registrationFailed: false
         }
     }
 
@@ -88,27 +93,58 @@ class RegisterDialog extends React.Component<Props, State> {
     handleRegister() {
         this.setState({
             loading: true
-        })
+        });
+        // @ts-ignore
+        const usernameValue = document.getElementById('username').value;
+        // @ts-ignore
+        const passwordValue = document.getElementById('password').value;
+        // @ts-ignore
+        const emailValue = !!document.getElementById('email').value;
+        // @ts-ignore
+        const nameValue = document.getElementById('name').value;
+
+        const user = {
+            username: usernameValue ? usernameValue : "",
+            password: passwordValue ? passwordValue : "",
+            email: emailValue ? emailValue : "",
+            name: nameValue ? nameValue : ""
+        } as RegisterUser;
+
+        register(user).then(res => {
+                this.setState({
+                    loading: false,
+                    registrationFailed: res !== 200
+                });
+                this.handleClose();
+            }
+        );
+
     }
 
     render() {
         const { classes } = this.props;
 
-        return <Dialog open={this.props.dialogs.registerOpen} onBackdropClick={this.handleClose.bind(this)}>
+        return this.state.registrationFailed ?
+            (
+                <Alert severity="error">A regisztráció nem sikerült, kérem próbálja újra!</Alert>
+            )
+            :
+
+            (<Dialog open={this.props.dialogs.registerOpen} onBackdropClick={this.handleClose.bind(this)}>
             <DialogTitle className={classes.header}>Regisztráció</DialogTitle>
             <BaseContent dividers>
                 <TableWrapper>
                     <Row>
-                        <TextField className={classes.input} fullWidth label="Email cím" />
+                        <TextField id="email" className={classes.input} fullWidth label="Email cím" />
                     </Row>
                     <Row>
-                        <TextField className={classes.input} fullWidth label="Név" />
+                        <TextField id="name" className={classes.input} fullWidth label="Név" />
                     </Row>
                     <Row>
-                        <TextField className={classes.input} fullWidth label="Felhasználó név" />
+                        <TextField id="username" className={classes.input} fullWidth label="Felhasználó név" />
                     </Row>
                     <Row>
-                        <TextField className={classes.input} fullWidth label="Jelszó" />
+                        <TextField id="password" className={classes.input} fullWidth label="Jelszó" />
                     </Row>
                 </TableWrapper>
             </BaseContent>
@@ -131,7 +167,7 @@ class RegisterDialog extends React.Component<Props, State> {
                         )
                 }
             </DialogActions>
-        </Dialog>;
+        </Dialog>);
     }
 };
 
