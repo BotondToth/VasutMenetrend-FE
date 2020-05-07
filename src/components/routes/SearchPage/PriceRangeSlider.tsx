@@ -1,11 +1,15 @@
 import React from 'react';
 import { Slider } from '@material-ui/core';
 
+interface Props {
+    onChange;
+}
+
 interface PriceRangeState {
     price: number[]
 }
 
-export default class PriceRangeSlider extends React.Component<any, PriceRangeState>
+export default class PriceRangeSlider extends React.Component<Props, PriceRangeState>
 {
     constructor(props) {
         super(props);
@@ -15,10 +19,18 @@ export default class PriceRangeSlider extends React.Component<any, PriceRangeSta
         }
     }
 
+    getValue() {
+        return this.state.price;
+    }
+
     handlePriceSlider(event, newValue) {
         this.setState({
             price: newValue
         })
+    }
+
+    handleChanged() {
+        this.props.onChange();
     }
 
     getText(value) {
@@ -26,7 +38,8 @@ export default class PriceRangeSlider extends React.Component<any, PriceRangeSta
     }
 
     render (){
-        return <Slider onChange={this.handlePriceSlider.bind(this)} 
+        return <Slider onChange={this.handlePriceSlider.bind(this)}
+            onChangeCommitted={this.handleChanged.bind(this)}
             value={this.state.price} 
             valueLabelDisplay="auto"
             aria-labelledby="discrete-slider-custom"

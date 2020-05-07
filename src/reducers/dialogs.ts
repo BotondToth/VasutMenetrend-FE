@@ -1,18 +1,23 @@
 const DIALOG_ACTION_OPEN = "DIALOG_ACTION_OPEN";
 const DIALOG_ACTION_CLOSE = "DIALOG_ACTION_CLOSE";
 
-export const DIALOG_LOGIN = "loginOpen";
-export const DIALOG_REGISTER = "registerOpen";
+export const DIALOG_LOGIN = "login";
+export const DIALOG_REGISTER = "register";
+export const DIALOG_TICKETING = "ticket";
 
 let initialState = {
     loginOpen: false,
-    registerOpen: false
+    registerOpen: false,
+
+    ticketOpen: false,
+    ticketData: null
 };
 
-export const openDialog = (dialog) => {
+export const openDialog = (dialog, data: any = null) => {
     return {
         type: DIALOG_ACTION_OPEN,
-        dialog: dialog
+        dialog: dialog,
+        data: data
     };
 }
 
@@ -28,13 +33,16 @@ export const reducer = (state = initialState, action) => {
         case DIALOG_ACTION_OPEN:
             {
                 let newState = state;
-                newState[action.dialog] = true;
+                newState[action.dialog + "Open"] = true;
+                if (action.data != null) {
+                    newState[action.dialog + "Data"] = action.data;
+                }
                 return {...newState};
             }
         case DIALOG_ACTION_CLOSE:
             {
                 let newState = state;
-                newState[action.dialog] = false;
+                newState[action.dialog + "Open"] = false;
                 return {...newState};
             }
     }

@@ -13,11 +13,15 @@ const FullWidthList = styled(List)`{
     width: 100%;
 }`;
 
+interface Props {
+    onChange();
+}
+
 interface State {
     cities: string[]
 }
 
-export default class CityList extends React.Component<any, State> {
+export default class CityList extends React.Component<Props, State> {
     cityInputRef;
 
     constructor(props) {
@@ -26,7 +30,7 @@ export default class CityList extends React.Component<any, State> {
         this.cityInputRef = React.createRef();
 
         this.state = {
-            cities: ["Szeged", "Kecskemét", "Derezs"]
+            cities: []
         };
     }
 
@@ -35,6 +39,8 @@ export default class CityList extends React.Component<any, State> {
         array.splice(index, 1);
         this.setState({
             cities: array
+        }, () => {
+            this.props.onChange();
         });
     }
 
@@ -45,8 +51,14 @@ export default class CityList extends React.Component<any, State> {
 
         this.setState({
             cities: [...this.state.cities, this.cityInputRef.current.value ]
+        }, () => {
+            this.props.onChange();
         });
         this.cityInputRef.current.value = "";
+    }
+
+    getValue() {
+        return this.state.cities;
     }
 
     render() {

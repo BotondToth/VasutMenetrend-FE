@@ -73,13 +73,17 @@ interface Props {
 
 interface State {
     loading: boolean;
-    priceRange: number[]
+    priceRange: number[];
+    data: any[];
 }
 
 class SearchPage extends React.Component<Props, State> {
     fromInputRef;
     toInputRef;
     whenInputRef;
+
+    priceRangeRef;
+    cityListRef;
 
     constructor(props) {
         super(props);
@@ -88,9 +92,13 @@ class SearchPage extends React.Component<Props, State> {
         this.toInputRef = React.createRef();
         this.whenInputRef = React.createRef();
 
+        this.priceRangeRef = React.createRef();
+        this.cityListRef = React.createRef();
+
         this.state = {
             loading: false,
-            priceRange: [0, 100]
+            priceRange: [0, 100],
+            data: []
         }
     }
 
@@ -109,6 +117,7 @@ class SearchPage extends React.Component<Props, State> {
         if (this.toInputRef.current.value.length > 0) params.push(`to=${encodeURIComponent(this.toInputRef.current.value)}`);
         if (this.fromInputRef.current.value.length > 0) params.push(`from=${encodeURIComponent(this.fromInputRef.current.value)}`);
         if (this.whenInputRef.current.value.length > 0) params.push(`when=${encodeURIComponent(this.whenInputRef.current.value)}`);
+        if (this.cityListRef.current.getValue().length > 0) params.push(`cl=${encodeURIComponent(this.cityListRef.current.getValue().join(","))}`);
         this.props.history.push(`/search?${params.join("&")}`);
     }
 
@@ -141,12 +150,19 @@ class SearchPage extends React.Component<Props, State> {
     }
 
     async fetchSearch() {
+        const searchData = {
+            from: this.fromInputRef.current.value ?? "",
+            to: this.toInputRef.current.value ?? "",
+            when: this.whenInputRef.current.value,
+            cityList: this.cityListRef.current != null ? this.cityListRef.current.getValue() : []
+        };
+
+        // ... search
+
         this.setState({ loading: true },
             () => {
-                // TODO: Fetch
-                setTimeout(() => {
-                    this.setState({ loading: false });
-                }, 2000);
+                const example = `[{"id":"5ea732d396d3e23afe678dea","start":{"id":"5ea2f71c8a9dee47416f1da6","postCode":1063,"name":"Nyugati Vasútállomás","city":"Budapest"},"end":{"id":"5ea2f7748a9dee47416f1da8","postCode":6724,"name":"Szegedi Vasútállomás","city":"Szeged"},"stops":[{"id":"5ea2f69a8a9dee47416f1da5","postCode":6900,"name":"Kecskemét vasútállomás","city":"Kecskemét"}],"train":{"id":"5e95e39789a3542554adca55","trainNum":"sz-001","limit":50},"ticket":{"id":"5ea46bf44b5e5039a13e8e29","distance":200,"firstClassPrice":10000,"secondClassPrice":6000,"bicyclePrice":500},"date":"2020-04-27T16:57:05.974Z","duration":120}]`;
+                this.setState({ loading: false, data: JSON.parse(example) });
             });
     }
 
@@ -159,19 +175,29 @@ class SearchPage extends React.Component<Props, State> {
             );
         }
 
+        const priceSlider: PriceRangeSlider = this.priceRangeRef.current;
+        let priceRange = [0, 100];
+        if (priceSlider != null) {
+            priceRange = priceSlider.getValue();
+        }
+        priceRange = [priceRange[0] * 1000, priceRange[1] * 1000];
+
+        const filteredTrains = this.state.data.filter(x => {
+            if ((x.ticket.secondClassPrice <= priceRange[1] && x.ticket.secondClassPrice >= priceRange[0]) || 
+                (x.ticket.firstClassPrice <= priceRange[1] && x.ticket.firstClassPrice >= priceRange[0])) {
+                return true;
+            }
+
+            return false;
+        });
+
         return (
             <React.Fragment>
-                <TrainCard />
-                <TrainCard />
-                <TrainCard />
-                <TrainCard />
-                <TrainCard />
-                <TrainCard />
-                <TrainCard />
-                <TrainCard />
-                <TrainCard />
-                <TrainCard />
-                <TrainCard />
+                {
+                    filteredTrains.map((train, index) => {
+                        return <TrainCard key={index} train={train} />;
+                    })
+                }
             </React.Fragment>
         );
     }
@@ -218,15 +244,19 @@ class SearchPage extends React.Component<Props, State> {
                                 <FlexContainer>
                                     <FlexRow>
                                         <Typography style={{marginRight: "20px"}}>Ár </Typography>
-                                        <PriceRangeSlider />
+                                        <PriceRangeSlider ref={this.priceRangeRef} onChange={() => {
+                                            this.forceUpdate();
+                                        }} />
                                     </FlexRow>
                                     <DividerMargin><Divider/></DividerMargin>
                                     <FlexRow>
-                                        <CategoryChips categories={["Elsőosztály", "Másodosztály", "Kutyabigyó"]} />
+                                        <CategoryChips categories={["Elsőosztály", "Másodosztály", "Bicigli"]} />
                                     </FlexRow>
                                     <DividerMargin><Divider/></DividerMargin>
                                     <FlexRow>
-                                        <CityList />
+                                        <CityList ref={this.cityListRef} onChange={() => {
+                                            this.fetchSearch();
+                                        }} />
                                     </FlexRow>
                                 </FlexContainer>
                             </ExpansionPanelDetails>

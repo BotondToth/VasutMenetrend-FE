@@ -8,6 +8,8 @@ import ReportPage from "./components/routes/ReportPage/ReportPage";
 import styled from "styled-components";
 import LoginDialog from "./components/LoginDialog";
 import RegisterDialog from "./components/RegisterDialog";
+import BuyTicketDialog from "./components/BuyTicketDialog";
+import UserPage from "./components/routes/UserPage/UserPage";
 
 const NoMatch = () => <Redirect to="/" />
 
@@ -22,9 +24,11 @@ function App() {
             <Header />
             <LoginDialog />
             <RegisterDialog />
+            <BuyTicketDialog />
             <Switch>
                 <Route exact path={"/report"} component={ReportPage} />
                 <Route exact path={"/search"} component={SearchPage} />
+                <Route exact path={"/user"} component={UserPage} />
                 <Route exact path={"/"} component={MainPage} />
                 <Route exact component={NoMatch} />
             </Switch>

@@ -8,6 +8,7 @@ import { compose } from "recompose";
 import { withRouter } from "react-router"
 import { Link } from 'react-router-dom';
 import AccountCircle from '@material-ui/icons/AccountCircle';
+import LogOutIcon from '@material-ui/icons/SubdirectoryArrowRight';
 import { openDialog, DIALOG_LOGIN } from '../reducers/dialogs';
 
 const styles = theme =>
@@ -116,11 +117,22 @@ class Header extends React.Component<Props, State> {
     }
 
     handleUserClick() {
-        this.props.openLogin();
+        if (localStorage.getItem("token") != null) {
+            this.props.history.push(`/user`);
+        } else {
+            this.props.openLogin();
+        }
+    }
+
+    handleUserLogout() {
+        localStorage.removeItem("token");
+        this.forceUpdate();
     }
 
     render() {
         const { classes } = this.props;
+
+        const isLoggedIn = (localStorage.getItem("token") != null)
 
         return <AppBar position="sticky">
             <Toolbar>
@@ -128,8 +140,17 @@ class Header extends React.Component<Props, State> {
                     <Link to="/">
                         <Typography variant="h6" className={classes.headerText}>Vasútmenetrend</Typography>
                     </Link>
-                    <div className={classes.loginButton} onClick={this.handleUserClick.bind(this)}>
-                        <AccountCircle />
+                    <div className={classes.loginButton}>
+                        <div onClick={this.handleUserClick.bind(this)}>
+                            <AccountCircle />
+                        </div>
+                        {
+                                isLoggedIn ?
+                                <div onClick={this.handleUserLogout.bind(this)}>
+                                    <LogOutIcon />
+                                </div>
+                                : null
+                        }
                     </div>
                     <div className={classes.search}>
                         <div className={classes.searchIcon}>
