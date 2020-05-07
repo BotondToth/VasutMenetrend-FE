@@ -12,29 +12,30 @@ const CardBase = styled(Card)`{
     margin-bottom: 15px;
 }`;
 
-const ContentRow = styled.div`{
+export const ContentRow = styled.div`{
     display: flex;
     align-items: center;
+    height: 80px;
 }`;
-const IconSpace = styled.div`{
+export const IconSpace = styled.div`{
     flex: 1 1 auto;
     text-align: center;
 }`;
 
-const DataLeft = styled.div`{
+export const DataLeft = styled.div`{
     flex: 1 1 auto;
     text-align: left;
 }`;
-const DataCenter = styled.div`{
+export const DataCenter = styled.div`{
     flex: 1 1 auto;
     text-align: center;
 }`;
-const DataRight = styled.div`{
+export const DataRight = styled.div`{
     flex: 1 1 auto;
     text-align: right;
 }`;
 
-const TopSpacing = styled.div`{
+export const TopSpacing = styled.div`{
     margin-top: 10px;
 }`;
 
