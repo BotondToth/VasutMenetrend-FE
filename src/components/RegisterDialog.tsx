@@ -99,7 +99,7 @@ class RegisterDialog extends React.Component<Props, State> {
         // @ts-ignore
         const passwordValue = document.getElementById('password').value;
         // @ts-ignore
-        const emailValue = !!document.getElementById('email').value;
+        const emailValue = document.getElementById('email').value;
         // @ts-ignore
         const nameValue = document.getElementById('name').value;
 

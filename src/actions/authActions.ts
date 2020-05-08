@@ -4,7 +4,28 @@ import {AuthUser} from "../models/AuthUserResponse";
 export async function getToken(user: AuthUser) {
     return authApi.login(user)
         .then(res => {
-            localStorage.setItem('token', res.authorization);
-            return res.status;
+            if (res.ok === false) {
+                return {
+                    ok: false,
+                    username: null,
+                    token: null,
+                    uid: null
+                }
+            }
+
+            return {
+                ok: true,
+                username: user.username,
+                token: res.authorization,
+                uid: res.uid
+            }
+        })
+        .catch(err => {
+            return {
+                ok: false,
+                username: null,
+                token: null,
+                uid: null
+            }
         })
 }

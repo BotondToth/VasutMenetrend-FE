@@ -1,9 +1,12 @@
 import React from 'react';
+import { connect } from "react-redux";
 import { Typography, Card, CardContent, TextField, Button, CircularProgress, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Divider } from '@material-ui/core';
 import styled from 'styled-components';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import * as moment from 'moment';
 import TrainCard from '../../TrainCard';
+import { getUserInfo } from '../../../api/userApi';
+import { getPurchases } from '../../../api/purchaseApi';
 
 const PageWrapper = styled.div`{
     display: flex;
@@ -62,7 +65,19 @@ const DividerMargin = styled.div`{
     margin-bottom: 10px;
 }`;
 
-interface Props {
+const mapStateToProps = (store) => {
+    return { 
+        user: store.user
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+    };
+};
+
+
+interface OwnProps {
     history;
     location;
 }
@@ -76,10 +91,11 @@ interface State {
     boughtTickets: any[];
 }
 
+type Props = OwnProps & ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>
 class UserPage extends React.Component<Props, State> {
     constructor(props) {
         super(props);
-        
+
         this.state = {
             loading: true,
 
@@ -92,7 +108,7 @@ class UserPage extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        if (localStorage.getItem("token") == null) {
+        if (this.props.user.token == null) {
             this.props.history.push("/");
             return;
         }
@@ -100,37 +116,55 @@ class UserPage extends React.Component<Props, State> {
         this.fetchData();
     }
 
-    async fetchData() {
-        // ... fetch
+    componentDidUpdate() {
+        if (this.props.user.token == null) {
+            this.props.history.push("/");
+            return;
+        }
+    }
 
-        const exampleTrainData = `{"id":"5ea732d396d3e23afe678dea","start":{"id":"5ea2f71c8a9dee47416f1da6","postCode":1063,"name":"Nyugati Vasútállomás","city":"Budapest"},"end":{"id":"5ea2f7748a9dee47416f1da8","postCode":6724,"name":"Szegedi Vasútállomás","city":"Szeged"},"stops":[{"id":"5ea2f69a8a9dee47416f1da5","postCode":6900,"name":"Kecskemét vasútállomás","city":"Kecskemét"}],"train":{"id":"5e95e39789a3542554adca55","trainNum":"sz-001","limit":50},"ticket":{"id":"5ea46bf44b5e5039a13e8e29","distance":200,"firstClassPrice":10000,"secondClassPrice":6000,"bicyclePrice":500},"date":"2020-04-27T16:57:05.974Z","duration":120}`;
-        this.setState({
-            loading: false,
-            userName: "USERNAME",
-            realName: "REAL NAME",
-            email: "xd@lol.asd",
-            boughtTickets: [
-                {
-                    date: "2020-05-07T12:09",
-                    price: "5555",
-                    ticketType: 1,
-                    train: JSON.parse(exampleTrainData)
-                }
-            ]
+    async fetchData() {
+        getUserInfo(this.props.user.token).then(data => {
+            if (!data.ok) {
+                this.props.history.push("/");
+            } else {
+                const userdata = data.data;
+                this.setState({
+                    loading: true,
+                    userName: userdata.username,
+                    realName: userdata.name,
+                    email: userdata.email,
+                    boughtTickets: [ ]
+                });
+
+                getPurchases(this.props.user.uid).then(res => {
+                    if (res.ok) {
+                        this.setState({
+                            loading: false,
+                            boughtTickets: res.data
+                        })
+                    } else {
+                        this.setState({
+                            loading: false,
+                            boughtTickets: [ ]
+                        })
+                    }
+                });
+            }
         })
     }
 
     renderTicketList() {
         if (this.state.boughtTickets.length == 0) {
-            return <div style={{textAlign: "center"}}>
+            return <div style={{ textAlign: "center" }}>
                 <Typography>Nem vásárolt még jegyet!</Typography>
             </div>;
         }
 
         return <>
             {
-                this.state.boughtTickets.map(x => {
-                    return <TrainCard train={x.train} isTicket ticketInfo={x} />;
+                this.state.boughtTickets.map(ticket => {
+                    return <TrainCard train={ticket.timetable} isTicket ticketInfo={ticket} />;
                 })
             }
         </>;
@@ -143,7 +177,7 @@ class UserPage extends React.Component<Props, State> {
                     <SearchSettingsContainer>
                         <Card>
                             <CardContent>
-                                <Typography variant="h6" style={{marginBottom: "10px"}}>Adatok</Typography>
+                                <Typography variant="h6" style={{ marginBottom: "10px" }}>Adatok</Typography>
                                 {
                                     this.state.loading ?
                                         <LoadingWrapper>
@@ -178,4 +212,4 @@ class UserPage extends React.Component<Props, State> {
     }
 }
 
-export default UserPage;
+export default connect(mapStateToProps, mapDispatchToProps)(UserPage);

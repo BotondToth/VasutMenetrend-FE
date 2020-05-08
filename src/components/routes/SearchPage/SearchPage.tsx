@@ -8,6 +8,7 @@ import * as moment from 'moment';
 import CategoryChips from "./CategoryChips";
 import PriceRangeSlider from "./PriceRangeSlider";
 import CityList from './CityList';
+import { searchTimeTable, TimetableSearchOptions } from '../../../api/timetableApi';
 
 const PageWrapper = styled.div`{
     display: flex;
@@ -64,6 +65,10 @@ const FlexRow = styled.div`{
 const DividerMargin = styled.div`{
     margin-top: 10px;
     margin-bottom: 10px;
+}`;
+
+const MidText = styled.div`{
+    text-align: center;
 }`;
 
 interface Props {
@@ -150,20 +155,26 @@ class SearchPage extends React.Component<Props, State> {
     }
 
     async fetchSearch() {
-        const searchData = {
+        const searchData: TimetableSearchOptions = {
             from: this.fromInputRef.current.value ?? "",
             to: this.toInputRef.current.value ?? "",
             when: this.whenInputRef.current.value,
             cityList: this.cityListRef.current != null ? this.cityListRef.current.getValue() : []
         };
 
-        // ... search
-
-        this.setState({ loading: true },
-            () => {
-                const example = `[{"id":"5ea732d396d3e23afe678dea","start":{"id":"5ea2f71c8a9dee47416f1da6","postCode":1063,"name":"Nyugati Vasútállomás","city":"Budapest"},"end":{"id":"5ea2f7748a9dee47416f1da8","postCode":6724,"name":"Szegedi Vasútállomás","city":"Szeged"},"stops":[{"id":"5ea2f69a8a9dee47416f1da5","postCode":6900,"name":"Kecskemét vasútállomás","city":"Kecskemét"}],"train":{"id":"5e95e39789a3542554adca55","trainNum":"sz-001","limit":50},"ticket":{"id":"5ea46bf44b5e5039a13e8e29","distance":200,"firstClassPrice":10000,"secondClassPrice":6000,"bicyclePrice":500},"date":"2020-04-27T16:57:05.974Z","duration":120}]`;
-                this.setState({ loading: false, data: JSON.parse(example) });
+        searchTimeTable(searchData).then(data => {
+            console.log(data);
+            this.setState({
+                loading: false,
+                data: data
+            })
+        })
+        .catch(err => {
+            this.setState({
+                loading: false
             });
+            console.error(err);
+        })
     }
 
     renderContent() {
@@ -193,6 +204,16 @@ class SearchPage extends React.Component<Props, State> {
 
         return (
             <React.Fragment>
+                {
+                    this.state.data.length == 0 ?
+                    <MidText><Typography>Nincs találat!</Typography></MidText>
+                    :
+                    (
+                        filteredTrains.length == 0 ?
+                        <MidText><Typography>Egy elem sem felel meg a szűrési feltételeknek!</Typography></MidText>
+                        : null
+                    )
+                }
                 {
                     filteredTrains.map((train, index) => {
                         return <TrainCard key={index} train={train} />;

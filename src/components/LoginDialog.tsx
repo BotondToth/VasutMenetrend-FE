@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { compose } from "recompose";
 import {getToken} from "../actions/authActions";
 import {AuthUser} from "../models/AuthUserResponse";
+import { onUserLogin } from '../reducers/user';
 
 const mapStateToProps = (store) => {
     return {
@@ -22,6 +23,9 @@ const mapDispatchToProps = (dispatch) => {
         openRegister: () => {
             dispatch(closeDialog(DIALOG_LOGIN));
             dispatch(openDialog(DIALOG_REGISTER));
+        },
+        userLogin: (uname, token, uid) => {
+            dispatch(onUserLogin(uname, token, uid));
         }
     };
 };
@@ -65,8 +69,15 @@ const Row = styled.div`{
     flex-flow: row;
 }`;
 
+const Error = styled.div`{
+    width: 100%;
+    text-align: center;
+    color: red;
+}`;
+
 interface State {
-    loading: boolean
+    loading: boolean;
+    error: string;
 }
 
 type Props = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps> & WithStyles<typeof styles>
@@ -75,7 +86,8 @@ class LoginDialog extends React.Component<Props, State> {
         super(props);
 
         this.state = {
-            loading: false
+            loading: false,
+            error: ""
         }
     }
 
@@ -96,13 +108,20 @@ class LoginDialog extends React.Component<Props, State> {
             password: passwordValue ? passwordValue : ""
         } as AuthUser;
         getToken(user).then(res => {
-                this.setState({
-                    loading: false
-                });
-                this.handleClose()
+                if (res.ok) {
+                    this.setState({
+                        loading: false
+                    });
+                    this.handleClose()
+                    this.props.userLogin(res.username, res.token, res.uid);
+                } else {
+                    this.setState({
+                        loading: false,
+                        error: "Hibás adatok!"
+                    })   
+                }
             }
         );
-        //localStorage.getItem('token')
     }
 
     handleRegister() {
@@ -121,6 +140,9 @@ class LoginDialog extends React.Component<Props, State> {
                     </Row>
                     <Row>
                         <TextField id="password" className={classes.input} fullWidth label="Jelszó" />
+                    </Row>
+                    <Row>
+                        <Error><Typography>{this.state.error}</Typography></Error>
                     </Row>
                 </TableWrapper>
             </BaseContent>

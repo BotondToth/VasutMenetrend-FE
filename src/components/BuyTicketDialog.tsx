@@ -5,10 +5,13 @@ import { closeDialog, DIALOG_TICKETING } from '../reducers/dialogs';
 import { withStyles, WithStyles, createStyles } from "@material-ui/core";
 import styled from 'styled-components';
 import { compose } from "recompose";
+import { getDiscounts } from '../api/discountApi';
+import { PurchaseInfo, doPurchase } from '../api/purchaseApi';
 
 const mapStateToProps = (store) => {
     return {
-        dialogs: store.dialogs
+        dialogs: store.dialogs,
+        user: store.user
     }
 };
 
@@ -72,6 +75,9 @@ interface State {
     buying: boolean;
     buyresult: boolean;
     loading: boolean;
+
+    loadingDiscounts: boolean;
+    discounts: any[];
 }
 
 type Props = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps> & WithStyles<typeof styles>
@@ -87,7 +93,9 @@ class BuyTicketDialog extends React.Component<Props, State> {
         this.state = {
             buying: false,
             buyresult: false,
-            loading: false
+            loading: false,
+            loadingDiscounts: false,
+            discounts: []
         }
     }
 
@@ -100,22 +108,46 @@ class BuyTicketDialog extends React.Component<Props, State> {
             loading: true,
             buying: true
         }, () => {
-            const buyData = {
-                userToken: localStorage.getItem('token'),
-                ticketId: this.props.dialogs.ticketData.ticketId,
-                count: this.selectedNumber,
-                discountType: this.selectedTicketType
-            };
+            const discountItem = this.state.discounts.find(x => x.id == this.selectedTicketType);
+            const timetableID = this.props.dialogs.ticketData.ticketId;
 
-            // ... buy
+            const purchase: PurchaseInfo = {
+                discount: discountItem.percentage,
+                quantity: this.selectedNumber,
+                timetableId: timetableID,
+                userId: this.props.user.uid
+            }
 
-            /*
-            this.setState({
+            doPurchase(purchase).then(x => {
+                this.setState({
                     loading: false,
                     buying: true,
-                    buyresult: true/false
+                    buyresult: x
+                });
+            });
+        });
+    }
+
+    componentWillMount() {
+        this.setState({
+            loadingDiscounts: true,
+            loading: false,
+            buying: false
+        }, () => {
+            getDiscounts().then(data => {
+                this.setState({
+                    loadingDiscounts: false,
+                    discounts: data
+                })
+                this.selectedTicketType = this.state.discounts[0].id;
             })
-            */
+        })
+    }
+
+    onEnter() {
+        this.setState({
+            loading: false,
+            buying: false
         });
     }
 
@@ -145,15 +177,16 @@ class BuyTicketDialog extends React.Component<Props, State> {
             </React.Fragment>;
         }
 
-        return <Dialog open={this.props.dialogs.ticketOpen}>
+        return <Dialog open={this.props.dialogs.ticketOpen} onEnter={this.onEnter.bind(this)}>
             <DialogTitle className={classes.header}>Jegyvásárlás</DialogTitle>
             <BaseContent dividers>
                 {
                     this.state.buying ?
                         (
-                            <Typography>
-                                {this.state.buyresult ? "Sikeres vásárlás!" : "Hiba!"}
-                            </Typography>
+                            this.state.loading ? null :
+                                <Typography>
+                                    {this.state.buyresult ? "Sikeres vásárlás!" : "Hiba!"}
+                                </Typography>
                         )
                         :
                         (
@@ -184,16 +217,16 @@ class BuyTicketDialog extends React.Component<Props, State> {
                                         <Select
                                             labelId="ticket-type-text"
                                             id="ticket-type"
-                                            defaultValue={0}
+                                            defaultValue={this.state.discounts.length > 0 ? this.state.discounts[0].id : 0}
                                             onChange={(event, value) => {
                                                 this.selectedTicketType = event.target.value as any;
                                             }}
                                         >
-                                            <MenuItem value={0}>
-                                                <em>Nincs</em>
-                                            </MenuItem>
-                                            <MenuItem value={1}>Nyugdíjas</MenuItem>
-                                            <MenuItem value={2}>Diák</MenuItem>
+                                            {
+                                                this.state.discounts.map((discount, index) => {
+                                                    return <MenuItem key={index} value={discount.id}>{discount.title}</MenuItem>;
+                                                })
+                                            }
                                         </Select>
                                         <FormHelperText>Válasszon kedvezményt!</FormHelperText>
                                     </FormControl>
@@ -219,7 +252,7 @@ class BuyTicketDialog extends React.Component<Props, State> {
             </BaseContent>
             <DialogActions className={classes.footer}>
                 {
-                    this.state.loading ?
+                    (this.state.loading || this.state.loadingDiscounts) ?
                         (
                             <CircularProgress />
                         )

@@ -7,6 +7,7 @@ import TrainIcon from '@material-ui/icons/Train';
 import TimeIcon from '@material-ui/icons/WatchLater';
 import DistanceIcon from '@material-ui/icons/NearMe';
 import MoneyIcon from '@material-ui/icons/AttachMoney';
+import CountIcon from '@material-ui/icons/DragIndicator';
 
 import { ReactComponent as CircleFillIcon } from "../svg/circle_fill.svg";
 import { ReactComponent as CircleLineIcon } from "../svg/circle_outline.svg";
@@ -64,7 +65,9 @@ const IconContent = styled.div`{
 }`;
 
 const mapStateToProps = (store) => {
-    return {}
+    return {
+        user: store.user
+    }
 };
 
 const mapDispatchToProps = (dispatch) => {
@@ -83,19 +86,15 @@ interface OwnProps {
     ticketInfo?: any;
 }
 
-const ticketTypes = [
-    "",
-    "(Nyugdíjas)",
-    "(Diák)"
-]
-
 type Props = OwnProps & ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>
 class TrainCard extends React.Component<Props> {
     buyTicket() {
-        this.props.openTicketDialog(this.props.train.ticket.id);
+        this.props.openTicketDialog(this.props.train.id);
     }
 
     render() {
+        const isLoggedIn = (this.props.user.token != null)
+
         const { train } = this.props;
         const { start, end, stops, ticket, date, duration } = train;
         return (
@@ -152,7 +151,11 @@ class TrainCard extends React.Component<Props> {
                                             </IconContent>
                                             <IconContent>
                                                 <DoubleMoneyIcon style={{ display: "inline-block" }} />
-                                                <Typography style={{ display: "inline-block" }}>{this.props.ticketInfo.price}Ft {ticketTypes[this.props.ticketInfo.ticketType]}</Typography>
+                                                <Typography style={{ display: "inline-block" }}>{Math.floor(ticket.firstClassPrice * (this.props.ticketInfo.discount / 100))}Ft (${Math.floor(this.props.ticketInfo.discount)}%)</Typography>
+                                            </IconContent>
+                                            <IconContent>
+                                                <CountIcon style={{ display: "inline-block" }} />
+                                    <Typography style={{ display: "inline-block" }}>{this.props.ticketInfo.quantity}db</Typography>
                                             </IconContent>
                                             <IconContent>
                                                 <TimeIcon style={{ display: "inline-block" }} />
@@ -185,7 +188,7 @@ class TrainCard extends React.Component<Props> {
                         </Align>
                     </TopSpacing>
                     {
-                        this.props.isTicket === true ?
+                        (this.props.isTicket === true || !isLoggedIn) ?
                             null
                             :
                             (

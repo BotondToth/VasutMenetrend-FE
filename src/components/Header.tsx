@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import LogOutIcon from '@material-ui/icons/SubdirectoryArrowRight';
 import { openDialog, DIALOG_LOGIN } from '../reducers/dialogs';
+import { onUserLogout } from '../reducers/user';
 
 const styles = theme =>
     createStyles({
@@ -75,13 +76,18 @@ const styles = theme =>
     })
 
 const mapStateToProps = (store) => {
-    return { };
+    return { 
+        user: store.user
+    };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
         openLogin: () => {
             dispatch(openDialog(DIALOG_LOGIN));
+        },
+        userLogout: () => {
+            dispatch(onUserLogout());
         }
     };
 };
@@ -117,7 +123,7 @@ class Header extends React.Component<Props, State> {
     }
 
     handleUserClick() {
-        if (localStorage.getItem("token") != null) {
+        if (this.props.user.token != null) {
             this.props.history.push(`/user`);
         } else {
             this.props.openLogin();
@@ -125,14 +131,13 @@ class Header extends React.Component<Props, State> {
     }
 
     handleUserLogout() {
-        localStorage.removeItem("token");
-        this.forceUpdate();
+        this.props.userLogout();
     }
 
     render() {
         const { classes } = this.props;
 
-        const isLoggedIn = (localStorage.getItem("token") != null)
+        const isLoggedIn = (this.props.user.token != null)
 
         return <AppBar position="sticky">
             <Toolbar>

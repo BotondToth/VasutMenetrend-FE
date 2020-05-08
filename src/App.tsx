@@ -18,7 +18,6 @@ const PageWrapper = styled.div`{
 }`;
 
 function App() {
-    localStorage.removeItem("token");
     return <PageWrapper>
         <BrowserRouter basename="/">
             <Header />
