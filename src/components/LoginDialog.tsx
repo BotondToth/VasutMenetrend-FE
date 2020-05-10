@@ -139,7 +139,7 @@ class LoginDialog extends React.Component<Props, State> {
                         <TextField id="username" className={classes.input} fullWidth label="Felhasználónév" />
                     </Row>
                     <Row>
-                        <TextField id="password" className={classes.input} fullWidth label="Jelszó" />
+                        <TextField id="password" type="password" className={classes.input} fullWidth label="Jelszó" />
                     </Row>
                     <Row>
                         <Error><Typography>{this.state.error}</Typography></Error>

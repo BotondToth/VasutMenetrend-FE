@@ -144,7 +144,7 @@ class RegisterDialog extends React.Component<Props, State> {
                         <TextField id="username" className={classes.input} fullWidth label="Felhasználó név" />
                     </Row>
                     <Row>
-                        <TextField id="password" className={classes.input} fullWidth label="Jelszó" />
+                        <TextField id="password" type="password" className={classes.input} fullWidth label="Jelszó" />
                     </Row>
                 </TableWrapper>
             </BaseContent>
