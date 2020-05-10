@@ -89,6 +89,7 @@ class SearchPage extends React.Component<Props, State> {
 
     priceRangeRef;
     cityListRef;
+    chipsRef;
 
     constructor(props) {
         super(props);
@@ -99,10 +100,11 @@ class SearchPage extends React.Component<Props, State> {
 
         this.priceRangeRef = React.createRef();
         this.cityListRef = React.createRef();
+        this.chipsRef = React.createRef();
 
         this.state = {
             loading: false,
-            priceRange: [0, 100],
+            priceRange: [0, 20],
             data: []
         }
     }
@@ -187,16 +189,32 @@ class SearchPage extends React.Component<Props, State> {
         }
 
         const priceSlider: PriceRangeSlider = this.priceRangeRef.current;
-        let priceRange = [0, 100];
+        let priceRange = [0, 20];
         if (priceSlider != null) {
             priceRange = priceSlider.getValue();
         }
         priceRange = [priceRange[0] * 1000, priceRange[1] * 1000];
 
+        let enabledChips = [ true, true, true ];
+        if (this.chipsRef.current != null) {
+            enabledChips = this.chipsRef.current.getValue();
+        }
+
         const filteredTrains = this.state.data.filter(x => {
-            if ((x.ticket.secondClassPrice <= priceRange[1] && x.ticket.secondClassPrice >= priceRange[0]) || 
-                (x.ticket.firstClassPrice <= priceRange[1] && x.ticket.firstClassPrice >= priceRange[0])) {
-                return true;
+            const minPrice = Math.min(x.ticket.secondClassPrice, x.ticket.firstClassPrice);
+            const maxPrice = Math.max(x.ticket.secondClassPrice, x.ticket.firstClassPrice);
+
+            if (minPrice > priceRange[1] || maxPrice < priceRange[0])
+            {
+                return false;
+            }
+
+            const flags = x.train.flags;
+            const flagList = [ ((flags & 1) == 1), ((flags & 2) == 2), ((flags & 4) == 4) ];
+            for (let x = 0; x < flagList.length; x++) {
+                if (flagList[x] && enabledChips[x]) {
+                    return true;
+                }
             }
 
             return false;
@@ -271,7 +289,10 @@ class SearchPage extends React.Component<Props, State> {
                                     </FlexRow>
                                     <DividerMargin><Divider/></DividerMargin>
                                     <FlexRow>
-                                        <CategoryChips categories={["Elsőosztály", "Másodosztály", "Bicigli"]} />
+                                        <CategoryChips ref={this.chipsRef} categories={["Elsőosztály", "Másodosztály", "Bicigli"]}
+                                        onChange={() => {
+                                            this.forceUpdate();
+                                        }} />
                                     </FlexRow>
                                     <DividerMargin><Divider/></DividerMargin>
                                     <FlexRow>

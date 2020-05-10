@@ -15,7 +15,7 @@ export default class PriceRangeSlider extends React.Component<Props, PriceRangeS
         super(props);
 
         this.state = {
-            price: [0, 10]
+            price: [0, 20]
         }
     }
 
@@ -40,7 +40,9 @@ export default class PriceRangeSlider extends React.Component<Props, PriceRangeS
     render (){
         return <Slider onChange={this.handlePriceSlider.bind(this)}
             onChangeCommitted={this.handleChanged.bind(this)}
-            value={this.state.price} 
+            value={this.state.price}
+            min={0}
+            max={20}
             valueLabelDisplay="auto"
             aria-labelledby="discrete-slider-custom"
             valueLabelFormat={this.getText} />;

@@ -12,7 +12,8 @@ const ChipWrapper = styled.div`{
 
 interface CategoryProps
 {
-    categories: string[]
+    categories: string[];
+    onChange;
 }
 
 interface CategoryState
@@ -39,7 +40,13 @@ export default class CategoryChips extends React.Component<CategoryProps, Catego
         en[index] = !en[index];
         this.setState({
             enabled: en
-        })
+        }, () => {
+            this.props.onChange();
+        });
+    }
+
+    getValue() {
+        return this.state.enabled;
     }
 
     render() {

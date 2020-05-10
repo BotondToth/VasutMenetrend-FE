@@ -8,6 +8,7 @@ import TimeIcon from '@material-ui/icons/WatchLater';
 import DistanceIcon from '@material-ui/icons/NearMe';
 import MoneyIcon from '@material-ui/icons/AttachMoney';
 import CountIcon from '@material-ui/icons/DragIndicator';
+import BikeIcon from '@material-ui/icons/DirectionsBike';
 
 import { ReactComponent as CircleFillIcon } from "../svg/circle_fill.svg";
 import { ReactComponent as CircleLineIcon } from "../svg/circle_outline.svg";
@@ -92,6 +93,31 @@ class TrainCard extends React.Component<Props> {
         this.props.openTicketDialog(this.props.train.id);
     }
 
+    renderFlags() {
+        let icons: JSX.Element[] = [];
+
+        const flags = this.props.train.train.flags;
+        if ((flags & 1) == 1) { // Firstclass
+            icons.push(<span title="Elsőosztály">
+                <DoubleMoneyIcon  />
+            </span>);
+        }
+        if ((flags & 2) == 2) { // SecondClass
+            icons.push(<span title="Másodosztály">
+                <MoneyIcon  />
+            </span>);
+        }
+        if ((flags & 4) == 4) { // Bicycle cart
+            icons.push(<span title="Biciglitároló">
+                <BikeIcon  />
+            </span>);
+        }
+
+        return <React.Fragment>
+            { icons }
+        </React.Fragment>;
+    }
+
     render() {
         const isLoggedIn = (this.props.user.token != null)
 
@@ -101,8 +127,13 @@ class TrainCard extends React.Component<Props> {
             <CardBase elevation={2}>
                 <CardContent>
                     <ContentRow>
-                        <TrainIcon style={{ fontSize: "48px" }} />
-                        <Typography variant="h6" style={{ display: "inline-block" }}>Vonat</Typography>
+                        <DataLeft>
+                            <TrainIcon style={{ fontSize: "48px" }} />
+                            <Typography variant="h6" style={{ display: "inline-block" }}>Vonat</Typography>
+                        </DataLeft>
+                        <DataRight>
+                            { this.renderFlags() }
+                        </DataRight>
                     </ContentRow>
                     <ContentRow>
                         <IconSpace><CircleFillIcon /></IconSpace>
