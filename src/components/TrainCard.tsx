@@ -82,10 +82,8 @@ const mapStateToProps = (store) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        openTicketDialog: (tid: string) => {
-            dispatch(openDialog(DIALOG_TICKETING, {
-                ticketId: tid
-            }));
+        openTicketDialog: (train) => {
+            dispatch(openDialog(DIALOG_TICKETING, train));
         }
     };
 };
@@ -99,7 +97,7 @@ interface OwnProps {
 type Props = OwnProps & ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>
 class TrainCard extends React.Component<Props> {
     buyTicket() {
-        this.props.openTicketDialog(this.props.train.id);
+        this.props.openTicketDialog(this.props.train);
     }
 
     renderFlags() {

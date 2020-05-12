@@ -109,7 +109,7 @@ class BuyTicketDialog extends React.Component<Props, State> {
             buying: true
         }, () => {
             const discountItem = this.state.discounts.find(x => x.id == this.selectedTicketType);
-            const timetableID = this.props.dialogs.ticketData.ticketId;
+            const timetableID = this.props.dialogs.ticketData.id;
 
             const purchase: PurchaseInfo = {
                 discount: discountItem.percentage,
@@ -140,15 +140,26 @@ class BuyTicketDialog extends React.Component<Props, State> {
                     discounts: data
                 })
                 this.selectedTicketType = this.state.discounts[0].id;
+
+                this.forceUpdate();
             })
         })
     }
 
     onEnter() {
+        this.selectedNumber = 1;
+        if (this.state.discounts != null && this.state.discounts.length > 0) {
+            this.selectedTicketType = this.state.discounts[0].id;
+        }
         this.setState({
             loading: false,
             buying: false
         });
+    }
+
+    getDiscountValue() {
+        const discountItem = this.state.discounts.find(x => x.id == this.selectedTicketType);
+        return (discountItem.percentage / 100.);
     }
 
     render() {
@@ -200,6 +211,7 @@ class BuyTicketDialog extends React.Component<Props, State> {
                                             defaultValue={1}
                                             onChange={(event, value) => {
                                                 this.selectedNumber = event.target.value as any;
+                                                this.forceUpdate();
                                             }}
                                         >
                                             <MenuItem value={1}>1db</MenuItem>
@@ -220,6 +232,7 @@ class BuyTicketDialog extends React.Component<Props, State> {
                                             defaultValue={this.state.discounts.length > 0 ? this.state.discounts[0].id : 0}
                                             onChange={(event, value) => {
                                                 this.selectedTicketType = event.target.value as any;
+                                                this.forceUpdate();
                                             }}
                                         >
                                             {
@@ -245,6 +258,13 @@ class BuyTicketDialog extends React.Component<Props, State> {
                                         </Select>
                                         <FormHelperText>Fizetési módszer</FormHelperText>
                                     </FormControl>
+                                </Row>
+                                <Row>
+                                    {
+                                        this.props.dialogs.ticketData != null ?
+                                        <Typography>Fizetendő: <b>{ this.props.dialogs.ticketData.ticket.firstClassPrice * this.selectedNumber * this.getDiscountValue() }Ft</b></Typography>
+                                        : null
+                                    }
                                 </Row>
                             </TableWrapper >
                         )
