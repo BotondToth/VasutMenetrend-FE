@@ -1,14 +1,14 @@
-import React, {useEffect} from 'react';
-import {Button, CardContent, Grid, Paper, Typography, Card} from '@material-ui/core';
-import {makeStyles} from "@material-ui/core/styles";
-import {useDispatch, useSelector} from "react-redux";
-import {getTimetables} from "../../actions/timetableAction";
-import {selectTimetables} from "../../reducers/selectors/selectTimetables";
+import React, { useEffect } from 'react';
+import { Button, CardContent, Grid, Paper, Typography, Card } from '@material-ui/core';
+import { makeStyles } from "@material-ui/core/styles";
+import { useDispatch, useSelector } from "react-redux";
+import { getTimetables } from "../../actions/timetableAction";
+import { selectTimetables } from "../../reducers/selectors/selectTimetables";
 import TrainIcon from '@material-ui/icons/Train';
-import {ReactComponent as CircleFillIcon} from "../../svg/circle_fill.svg";
-import {ReactComponent as CircleLineIcon} from "../../svg/circle_outline.svg";
+import { ReactComponent as CircleFillIcon } from "../../svg/circle_fill.svg";
+import { ReactComponent as CircleLineIcon } from "../../svg/circle_outline.svg";
 import styled from 'styled-components';
-import TrainCard, {ContentRow, DataCenter, DataLeft, DataRight, IconSpace, TopSpacing} from "../TrainCard";
+import TrainCard, { ContentRow, DataCenter, DataLeft, DataRight, IconSpace, TopSpacing } from "../TrainCard";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -20,6 +20,10 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.text.secondary,
     },
 }));
+
+const GridMargin = styled.div`{
+    padding: 20px;
+}`;
 
 export default function MainPage() {
     const dispatch = useDispatch();
@@ -43,12 +47,14 @@ export default function MainPage() {
                 {
                     timetableState.timetables.map((row, index) => (
                         <Grid item xs={6} key={index}>
-                            <TrainCard train={row} />
+                            <GridMargin>
+                                <TrainCard train={row} />
+                            </GridMargin>
                         </Grid>
                     ))
                 }
             </Grid>
-        </div>
+        </div >
     )
 }
 

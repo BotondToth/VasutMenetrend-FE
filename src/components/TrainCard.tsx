@@ -65,6 +65,12 @@ const IconContent = styled.div`{
     justify-content: center;
 }`;
 
+const HeaderContent = styled.div`{
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+}`;
+
 const mapStateToProps = (store) => {
     return {
         user: store.user
@@ -128,8 +134,10 @@ class TrainCard extends React.Component<Props> {
                 <CardContent>
                     <ContentRow>
                         <DataLeft>
-                            <TrainIcon style={{ fontSize: "48px" }} />
-                            <Typography variant="h6" style={{ display: "inline-block" }}>Vonat</Typography>
+                            <HeaderContent>
+                                <TrainIcon style={{ fontSize: "48px" }} />
+                                <Typography variant="h6" style={{ display: "inline-block" }}>Vonat</Typography>
+                            </HeaderContent>
                         </DataLeft>
                         <DataRight>
                             { this.renderFlags() }
@@ -155,6 +163,7 @@ class TrainCard extends React.Component<Props> {
                             <Typography variant="h6">Indul</Typography>
                             <Typography variant="body1">{start.city}</Typography>
                             <Typography variant="body1">{start.name}</Typography>
+                            <Typography variant="body1">{moment.default(date).format("YYYY. MM. DD. HH:mm")}</Typography>
                         </DataLeft>
                         {/*<DataCenter>
                             <Typography variant="h6">Felszállás</Typography>
@@ -186,7 +195,7 @@ class TrainCard extends React.Component<Props> {
                                             </IconContent>
                                             <IconContent>
                                                 <CountIcon style={{ display: "inline-block" }} />
-                                    <Typography style={{ display: "inline-block" }}>{this.props.ticketInfo.quantity}db</Typography>
+                                                <Typography style={{ display: "inline-block" }}>{this.props.ticketInfo.quantity}db</Typography>
                                             </IconContent>
                                             <IconContent>
                                                 <TimeIcon style={{ display: "inline-block" }} />
