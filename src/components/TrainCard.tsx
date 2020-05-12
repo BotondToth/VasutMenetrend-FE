@@ -90,14 +90,6 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-const useStyles = {
-    hideBorder: {
-      '&.MuiExpansionPanel-root:before': {
-        display: 'none',
-      },
-    },
-  };
-
 interface OwnProps {
     train: any;
     isTicket?: boolean;
@@ -136,22 +128,7 @@ class TrainCard extends React.Component<Props> {
     }
 
     renderStops(stops) {
-        const classes = (this.props as any).classes;
-
-        return <ExpansionPanel>
-            <ExpansionPanelSummary className={classes.hideBorder} style={{marginTop: "10px"}} expandIcon={<ExpandMoreIcon />}>
-                <Typography>Megállók</Typography>
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails>
-                <List>
-                {
-                    stops.map(x => {
-                        return <ListItem key={x}><Typography>{x.name}</Typography></ListItem>
-                    })
-                }
-                </List>
-            </ExpansionPanelDetails>
-        </ExpansionPanel>;
+        return <Typography style={{marginTop: "20px"}}><b>Megállók:</b> {stops.map(x => x.name).join(" ➡️ ")}</Typography>
     }
 
     render() {
@@ -286,8 +263,5 @@ class TrainCard extends React.Component<Props> {
     }
 }
 
-export default compose(
-    withStyles(useStyles),
-    connect(mapStateToProps, mapDispatchToProps)
-)(TrainCard);
+export default connect(mapStateToProps, mapDispatchToProps)(TrainCard);
 
