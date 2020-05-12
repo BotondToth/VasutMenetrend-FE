@@ -1,7 +1,10 @@
 import React from 'react';
 import { connect } from "react-redux";
-import { Card, CardContent, Typography, Button } from '@material-ui/core';
+import { Card, CardContent, Typography, Button, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, List, ListItem } from '@material-ui/core';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import styled from 'styled-components';
+import { withStyles, makeStyles, createStyles } from "@material-ui/core";
+import { compose } from "recompose";
 
 import TrainIcon from '@material-ui/icons/Train';
 import TimeIcon from '@material-ui/icons/WatchLater';
@@ -87,6 +90,14 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
+const useStyles = {
+    hideBorder: {
+      '&.MuiExpansionPanel-root:before': {
+        display: 'none',
+      },
+    },
+  };
+
 interface OwnProps {
     train: any;
     isTicket?: boolean;
@@ -105,30 +116,56 @@ class TrainCard extends React.Component<Props> {
         const flags = this.props.train.train.flags;
         if ((flags & 1) == 1) { // Firstclass
             icons.push(<span title="Elsőosztály">
-                <DoubleMoneyIcon  />
+                <DoubleMoneyIcon />
             </span>);
         }
         if ((flags & 2) == 2) { // SecondClass
             icons.push(<span title="Másodosztály">
-                <MoneyIcon  />
+                <MoneyIcon />
             </span>);
         }
         if ((flags & 4) == 4) { // Bicycle cart
             icons.push(<span title="Biciglitároló">
-                <BikeIcon  />
+                <BikeIcon />
             </span>);
         }
 
         return <React.Fragment>
-            { icons }
+            {icons}
         </React.Fragment>;
+    }
+
+    renderStops(stops) {
+        const classes = (this.props as any).classes;
+
+        return <ExpansionPanel>
+            <ExpansionPanelSummary className={classes.hideBorder} style={{marginTop: "10px"}} expandIcon={<ExpandMoreIcon />}>
+                <Typography>Megállók</Typography>
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails>
+                <List>
+                {
+                    stops.map(x => {
+                        return <ListItem key={x}><Typography>{x.name}</Typography></ListItem>
+                    })
+                }
+                </List>
+            </ExpansionPanelDetails>
+        </ExpansionPanel>;
     }
 
     render() {
         const isLoggedIn = (this.props.user.token != null)
 
         const { train } = this.props;
-        const { start, end, stops, ticket, date, duration } = train;
+        const { start, end, ticket, date, duration } = train;
+        
+        let stops: any[] = [];
+        if (train.stops != null) {
+            stops = train.stops;
+        }
+        console.log(stops);
+
         return (
             <CardBase elevation={2}>
                 <CardContent>
@@ -140,7 +177,7 @@ class TrainCard extends React.Component<Props> {
                             </HeaderContent>
                         </DataLeft>
                         <DataRight>
-                            { this.renderFlags() }
+                            {this.renderFlags()}
                         </DataRight>
                     </ContentRow>
                     <ContentRow>
@@ -239,10 +276,18 @@ class TrainCard extends React.Component<Props> {
                                 </ButtonRow>
                             )
                     }
+                    {
+                        (stops != null && stops.length > 0) ?
+                            this.renderStops(stops) : null
+                    }
                 </CardContent>
             </CardBase>
         );
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(TrainCard);
+export default compose(
+    withStyles(useStyles),
+    connect(mapStateToProps, mapDispatchToProps)
+)(TrainCard);
+

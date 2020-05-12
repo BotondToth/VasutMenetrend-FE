@@ -96,7 +96,7 @@ export default function ReportPage() {
     };
 
     return (
-        <>
+        <div style={{margin: "20px", padding: "10px"}}>
             <TableContainer component={Paper}>
                 <div>
                     <Select
@@ -158,6 +158,6 @@ export default function ReportPage() {
                     Mentés
                 </Button>
             </TableContainer>
-        </>
+        </div>
     );
 }

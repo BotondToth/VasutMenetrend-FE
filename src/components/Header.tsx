@@ -9,6 +9,7 @@ import { withRouter } from "react-router"
 import { Link } from 'react-router-dom';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import LogOutIcon from '@material-ui/icons/SubdirectoryArrowRight';
+import ChartIcon from '@material-ui/icons/InsertChart';
 import { openDialog, DIALOG_LOGIN } from '../reducers/dialogs';
 import { onUserLogout } from '../reducers/user';
 
@@ -134,6 +135,10 @@ class Header extends React.Component<Props, State> {
         this.props.userLogout();
     }
 
+    handleReports() {
+        this.props.history.push(`/report`);
+    }
+
     render() {
         const { classes } = this.props;
 
@@ -151,9 +156,14 @@ class Header extends React.Component<Props, State> {
                         </div>
                         {
                                 isLoggedIn ?
-                                <div onClick={this.handleUserLogout.bind(this)}>
-                                    <LogOutIcon />
-                                </div>
+                                <>
+                                    <div onClick={this.handleReports.bind(this)}>
+                                        <ChartIcon />
+                                    </div>
+                                    <div onClick={this.handleUserLogout.bind(this)}>
+                                        <LogOutIcon />
+                                    </div>
+                                </>
                                 : null
                         }
                     </div>

@@ -19,7 +19,9 @@ export const searchTimeTable = (options: TimetableSearchOptions): Promise<any> =
 
     let url = `/timetables/search?from=${encodeURIComponent(options.from)}&to=${encodeURIComponent(options.to)}&when=${time}`;
     if (options.cityList != null && options.cityList.length > 0) {
-        url += `&citylist=${encodeURIComponent(options.cityList.join(","))}`;
+        options.cityList.forEach(x => {
+            url += `&stops=${x}`;
+        });
     }
 
     return axios.get<any>(url).then(res => res.data);

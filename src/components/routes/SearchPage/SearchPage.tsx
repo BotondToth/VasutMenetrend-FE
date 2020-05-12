@@ -126,6 +126,8 @@ class SearchPage extends React.Component<Props, State> {
         if (this.whenInputRef.current.value.length > 0) params.push(`when=${encodeURIComponent(this.whenInputRef.current.value)}`);
         if (this.cityListRef.current.getValue().length > 0) params.push(`cl=${encodeURIComponent(this.cityListRef.current.getValue().join(","))}`);
         this.props.history.push(`/search?${params.join("&")}`);
+
+        this.fetchSearch();
     }
 
     componentDidMount() {
